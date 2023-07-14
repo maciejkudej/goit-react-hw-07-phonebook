@@ -26,7 +26,7 @@ export default function App() {
       name,
       phone,
     };
-    dispatch(contactsOperations.addContacts(contact));
+    dispatch(contactsOperations.addContact(contact));
   };
 
   const filterChange = e => {

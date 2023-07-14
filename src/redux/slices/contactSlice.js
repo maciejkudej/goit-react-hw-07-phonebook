@@ -2,9 +2,17 @@ import { createSlice } from '@reduxjs/toolkit';
 
 import {
   fetchContacts,
-  deleteContacts,
-  addContacts,
+  deleteContact,
+  addContact,
 } from 'redux/contactsOperation';
+
+const handlePending = state => {
+  state.isLoading = true;
+};
+const handleRejected = (state, action) => {
+  state.isLoading = false;
+  state.error = action.payload;
+};
 
 export const contactSlice = createSlice({
   name: 'contacts',
@@ -14,61 +22,22 @@ export const contactSlice = createSlice({
     error: null,
   },
   extraReducers: {
-    [fetchContacts.fulfilled]: (state, action) => {
-      return {
-        ...state,
-        entities: action.payload,
-      };
+    [addContact.pending]: handlePending,
+    [deleteContact.pending]: handlePending,
+    [fetchContacts.pending]: handlePending,
+    [addContact.rejected]: handleRejected,
+    [deleteContact.rejected]: handleRejected,
+    [fetchContacts.rejected]: handleRejected,
+    [addContact.fulfilled](state, action) {
+      state.entities = [action.payload, ...state.entities];
     },
-    [fetchContacts.pending]: state => {
-      return {
-        ...state,
-        isLoading: true,
-      };
+    [deleteContact.fulfilled](state, action) {
+      state.entities = state.entities.filter(
+        contact => contact.id !== action.payload.id
+      );
     },
-    [fetchContacts.rejected]: (state, action) => {
-      return {
-        ...state,
-        error: action.payload,
-      };
-    },
-    [deleteContacts.fulfilled]: (state, action) => {
-      return {
-        ...state,
-        entities: state.entities.filter(
-          contact => contact.id !== action.payload.id
-        ),
-      };
-    },
-    [deleteContacts.pending]: state => {
-      return {
-        ...state,
-        isLoading: true,
-      };
-    },
-    [deleteContacts.rejected]: (state, action) => {
-      return {
-        ...state,
-        error: action.payload,
-      };
-    },
-    [addContacts.fulfilled]: (state, action) => {
-      return {
-        ...state,
-        entities: [action.payload, ...state.entities],
-      };
-    },
-    [addContacts.pending]: state => {
-      return {
-        ...state,
-        isLoading: true,
-      };
-    },
-    [addContacts.rejected]: (state, action) => {
-      return {
-        ...state,
-        error: action.payload,
-      };
+    [fetchContacts.fulfilled](state, action) {
+      state.entities = action.payload;
     },
   },
 });
